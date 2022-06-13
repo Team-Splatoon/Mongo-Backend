@@ -35,7 +35,11 @@ const userTemplate = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  courseEnrolled: {
+  coursesEnrolled: {
+    type: Array,
+    required: true,
+  },
+  coursesTeach: {
     type: Array,
     required: true,
   },

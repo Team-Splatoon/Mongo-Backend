@@ -3,8 +3,15 @@ const bcrypt = require('bcrypt')
 
 module.exports.signup = async (req, res, next) => {
   try {
-    const { fullName, username, email, password, identity, coursesEnrolled } =
-      req.body
+    const {
+      fullName,
+      username,
+      email,
+      password,
+      identity,
+      coursesEnrolled,
+      coursesTeach,
+    } = req.body
     const usernameCheck = await User.findOne({ username })
     const emailCheck = await User.findOne({ email })
     if (usernameCheck) {
@@ -21,6 +28,7 @@ module.exports.signup = async (req, res, next) => {
       password: saltPassword,
       identity,
       coursesEnrolled,
+      coursesTeach,
     })
     delete user.password
     return res.json({ status: true, user })
