@@ -26,11 +26,20 @@ const userTemplate = new mongoose.Schema({
     min: 8,
     max: 50,
   },
+  identity: {
+    type: String,
+    min: 8,
+    max: 50,
+  },
   date: {
     type: Date,
     default: Date.now,
   },
-  courseEnrolled: {
+  coursesEnrolled: {
+    type: Array,
+    required: true,
+  },
+  coursesTeach: {
     type: Array,
     required: true,
   },
