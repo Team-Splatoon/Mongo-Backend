@@ -41,8 +41,6 @@ module.exports.login = async (req, res, next) => {
   try {
     const { username, email, password } = req.body
     const curruser = await User.findOne({ username })
-    // console.log(curruser)
-
     if (!curruser) {
       return res.json({ msg: 'Incorrect username or password.', status: false })
     }
