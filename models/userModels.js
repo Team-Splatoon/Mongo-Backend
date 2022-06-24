@@ -43,6 +43,14 @@ const userTemplate = new mongoose.Schema({
     type: Array,
     required: true,
   },
+  isAvatarImageSet: {
+    type: Boolean,
+    default: false,
+  },
+  avatarImage: {
+    type: String,
+    default: '',
+  },
 })
 
 module.exports = mongoose.model('Usertable', userTemplate)

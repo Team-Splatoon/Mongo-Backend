@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const bcrypt = require('bcrypt')
+
 const {
   login,
   signup,
@@ -10,5 +10,7 @@ const {
 } = require('../controllers/userController')
 router.post('/signup', signup)
 router.post('/login', login)
+router.post('/setavatar/:id', setAvatar)
+router.get('/allusers/:id', getAllUsers)
 
 module.exports = router
