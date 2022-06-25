@@ -1,5 +1,5 @@
 const User = require('../models/userModels')
-const bcrypt = require('bcrypt')
+// const bcrypt = require('bcrypt')
 
 module.exports.signup = async (req, res, next) => {
   try {
@@ -20,7 +20,7 @@ module.exports.signup = async (req, res, next) => {
     if (emailCheck) {
       return res.json({ msg: 'Email already exists', status: false })
     }
-    const saltPassword = await bcrypt.hash(password, 10)
+    // const saltPassword = await bcrypt.hash(password, 10)
     const user = await User.create({
       fullName,
       username,
@@ -48,7 +48,7 @@ module.exports.login = async (req, res, next) => {
     if (!emailCheck) {
       return res.json({ msg: 'Incorrect email.', status: false })
     }
-    const isPasswordValid = await bcrypt.compare(password, curruser.password)
+    // const isPasswordValid = await bcrypt.compare(password, curruser.password)
     if (!isPasswordValid) {
       return res.json({ msg: 'Incorrect username or password.', status: false })
     }
