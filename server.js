@@ -5,6 +5,8 @@ const dotenv = require('dotenv')
 const routesUrls = require('./routes/routes')
 const cors = require('cors')
 
+const messageRoute = require('./routes/messagesRoute')
+
 dotenv.config()
 
 mongoose
@@ -18,4 +20,5 @@ mongoose
 app.use(express.json())
 app.use(cors())
 app.use('/api/auth', routesUrls)
+app.use('/api/messages', messageRoute)
 app.listen(4000, () => console.log('server is up and running'))
