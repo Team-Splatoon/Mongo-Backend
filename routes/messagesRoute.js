@@ -4,7 +4,7 @@ const router = express.Router()
 const {
   addMessage, 
   getAllMessage,
-} = require('../controllers/messageController')
+} = require('../controllers/messagesController')
 
 router.post('/addmsg/', addMessage)
 router.post('/getmsg/', getAllMessage)
