@@ -28,6 +28,7 @@ const userTemplate = new mongoose.Schema({
   },
   identity: {
     type: String,
+    required: true,
     min: 8,
     max: 50,
   },
