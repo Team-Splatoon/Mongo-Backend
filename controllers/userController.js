@@ -1,5 +1,6 @@
-const User = require('../models/userModels')
+const User = require('../models/userModel')
 const bcrypt = require('bcrypt')
+const generateToken = require('../config/generateToken')
 
 module.exports.signup = async (req, res, next) => {
   try {
@@ -31,7 +32,7 @@ module.exports.signup = async (req, res, next) => {
       coursesTeach,
     })
     delete user.password
-    return res.json({ status: true, user })
+    return res.json({ status: true, user, token: generateToken(user._id) })
   } catch (err) {
     next(err)
   }
@@ -81,14 +82,18 @@ module.exports.setAvatar = async (req, res, next) => {
   }
 }
 
-module.exports.getAllUsers = async (req, res, next) => {
+module.exports.allUsers = async (req, res, next) => {
   try {
-    const users = await User.find({ _id: { $ne: req.params.id } }).select([
-      'email',
-      'username',
-      'avatarImage',
-      '_id',
-    ])
+    const keyword = req.query.search
+      ? {
+          $or: [
+            { username: { $regex: req.query.search, $options: 'i' } },
+            { email: { $regex: req.query.search, $options: 'i' } },
+          ],
+        }
+      : {}
+
+    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } })
     return res.json(users)
   } catch (ex) {
     next(ex)
