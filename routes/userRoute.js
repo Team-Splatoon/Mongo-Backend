@@ -8,9 +8,9 @@ const {
 } = require('../controllers/userController')
 const { protect } = require('../middleware/authMiddleware')
 
-router.post('/signup', signup).get(protect, allUsers)
+router.post('/signup', signup)
 router.post('/login', login)
 router.post('/setavatar/:id', setAvatar)
-router.get('/allusers/:id', allUsers)
+router.get('/allusers', protect, allUsers)
 
 module.exports = router
