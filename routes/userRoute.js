@@ -11,6 +11,6 @@ const { protect } = require('../middleware/authMiddleware')
 router.post('/signup', signup)
 router.post('/login', login)
 router.post('/setavatar/:id', setAvatar)
-router.get('/allusers', protect, allUsers)
+router.get('/allusers', allUsers)
 
 module.exports = router

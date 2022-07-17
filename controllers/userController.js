@@ -32,7 +32,7 @@ module.exports.signup = async (req, res, next) => {
       coursesTeach,
     })
     delete user.password
-    return res.json({ status: true, user, token: generateToken(user._id) })
+    return res.json({ status: true, user })
   } catch (err) {
     next(err)
   }
@@ -87,13 +87,17 @@ module.exports.allUsers = async (req, res, next) => {
     const keyword = req.query.search
       ? {
           $or: [
-            { username: { $regex: req.query.search, $options: 'i' } },
-            { email: { $regex: req.query.search, $options: 'i' } },
+            { username: { $regex: req.query.search } },
+            { email: { $regex: req.query.search } },
           ],
         }
       : {}
-
-    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } })
+    console.log(req)
+    console.log(req.query.search)
+    console.log(req.user)
+    const users = await User.find(keyword).find({
+      _id: { $ne: req.user._id },
+    })
     return res.json(users)
   } catch (ex) {
     next(ex)
