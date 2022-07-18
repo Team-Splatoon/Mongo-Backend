@@ -7,6 +7,7 @@ const User = require('../models/userModel')
 //@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body
+  const data = JSON.parse(req.query.user)
 
   if (!userId) {
     console.log('UserId param not sent with request')
@@ -16,7 +17,7 @@ const accessChat = asyncHandler(async (req, res) => {
   var isChat = await Chat.find({
     isGroupChat: false,
     $and: [
-      { users: { $elemMatch: { $eq: req.user._id } } },
+      { users: { $elemMatch: { $eq: data._id } } },
       { users: { $elemMatch: { $eq: userId } } },
     ],
   })
@@ -34,7 +35,7 @@ const accessChat = asyncHandler(async (req, res) => {
     var chatData = {
       chatName: 'sender',
       isGroupChat: false,
-      users: [req.user._id, userId],
+      users: [data._id, userId],
     }
 
     try {
@@ -56,7 +57,8 @@ const accessChat = asyncHandler(async (req, res) => {
 //@access          Protected
 const fetchChats = asyncHandler(async (req, res) => {
   try {
-    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+    const data = JSON.parse(req.query.user)
+    Chat.find({ users: { $elemMatch: { $eq: data._id } } })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
       .populate('latestMessage')

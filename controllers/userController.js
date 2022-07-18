@@ -92,11 +92,10 @@ module.exports.allUsers = async (req, res, next) => {
           ],
         }
       : {}
-    console.log(req)
-    console.log(req.query.search)
-    console.log(req.user)
+    console.log(User.find(keyword))
+    const data = JSON.parse(req.query.user)
     const users = await User.find(keyword).find({
-      _id: { $ne: req.user._id },
+      _id: { $ne: data._id },
     })
     return res.json(users)
   } catch (ex) {
