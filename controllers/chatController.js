@@ -7,7 +7,7 @@ const User = require('../models/userModel')
 //@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body
-  console.log(userID)
+  console.log(userId)
   const data = JSON.parse(req.query.user)
 
   if (!userId) {
@@ -60,11 +60,12 @@ const fetchChats = asyncHandler(async (req, res) => {
   try {
     const data = JSON.parse(req.query.user)
     Chat.find({ users: { $elemMatch: { $eq: data._id } } })
-      .populate('users', '-password')
+      // .populate('users', '-password')
       .populate('groupAdmin', '-password')
       .populate('latestMessage')
       .sort({ updatedAt: -1 })
       .then(async (results) => {
+        console.log(results)
         results = await User.populate(results, {
           path: 'latestMessage.sender',
           select: 'username avatarImage email',
