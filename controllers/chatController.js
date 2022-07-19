@@ -7,6 +7,7 @@ const User = require('../models/userModel')
 //@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body
+  console.log(userID)
   const data = JSON.parse(req.query.user)
 
   if (!userId) {
