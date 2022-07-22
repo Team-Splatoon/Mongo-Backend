@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const cors = require('cors')
 const socket = require('socket.io')
-const messageRoute = require('./routes/messagesRoute')
+const messagesRoute = require('./routes/messagesRoute')
 const routesUrls = require('./routes/userRoute')
 const chatRoute = require('./routes/chatRoute')
 
@@ -21,7 +21,7 @@ mongoose
 app.use(express.json())
 app.use(cors())
 app.use('/api/auth', routesUrls)
-app.use('/api/messages', messageRoute)
+app.use('/api/message', messagesRoute)
 app.use('/api/chat', chatRoute)
 const server = app.listen(4000, () => console.log('server is up and running'))
 

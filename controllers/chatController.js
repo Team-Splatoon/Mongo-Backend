@@ -60,7 +60,8 @@ const fetchChats = asyncHandler(async (req, res) => {
   try {
     const data = JSON.parse(req.query.user)
     Chat.find({ users: { $elemMatch: { $eq: data._id } } })
-      // .populate('users', '-password')
+      .populate('users', '-password')
+      //.populate('users')
       .populate('groupAdmin', '-password')
       .populate('latestMessage')
       .sort({ updatedAt: -1 })
