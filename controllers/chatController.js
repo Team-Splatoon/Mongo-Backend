@@ -95,7 +95,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
       .send('More than 2 users are required to form a group chat')
   }
 
-  users.push(req.user)
+  users.push(req.body.currUser)
 
   try {
     const groupChat = await Chat.create({
