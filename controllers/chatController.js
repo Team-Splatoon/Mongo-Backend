@@ -122,7 +122,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
   const currGroupChatExist = req.body.currGroupChatExist
 
   try {
-    const newGroupChatListCreated = []
+    const newGroupChatCreatedList = []
     groupNames.map(async (name) => {
       for (var i = 0; i < currGroupChatExist.length; ++i) {
         if (name === currGroupChatExist[i].chatName) {
@@ -144,22 +144,33 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('groupAdmin', '-password')
           }
         } else {
+          if (currUser.identity === 'Staff') {
+            const groupChat = await Chat.create({
+              chatName: name,
+              users: users,
+              isGroupChat: true,
+              groupAdmin: currUser,
+            })
+            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+            newGroupChatCreatedList.push(fullGroupChat)
+          } else {
+            const groupChat = await Chat.create({
+              chatName: name,
+              users: users,
+              isGroupChat: true,
+            })
+            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+            newGroupChatCreatedList.push(fullGroupChat)
+          }
         }
       }
     })
 
-    const groupChat = await Chat.create({
-      chatName: req.body.name,
-      users: users,
-      isGroupChat: true,
-      groupAdmin: req.body.currUser,
-    })
-
-    const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-      .populate('users', '-password')
-      .populate('groupAdmin', '-password')
-
-    res.status(200).json(fullGroupChat)
+    res.status(200).json(newGroupChatCreatedList)
   } catch (error) {
     res.status(400)
     throw new Error(error.message)
