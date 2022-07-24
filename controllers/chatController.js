@@ -4,7 +4,6 @@ const User = require('../models/userModel')
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
-//@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body
   //console.log(userId)
@@ -55,7 +54,6 @@ const accessChat = asyncHandler(async (req, res) => {
 
 //@description     Fetch all chats for a user
 //@route           GET /api/chat/
-//@access          Protected
 const fetchChats = asyncHandler(async (req, res) => {
   try {
     const data = JSON.parse(req.query.user)
@@ -81,10 +79,9 @@ const fetchChats = asyncHandler(async (req, res) => {
 
 //@description     Create New Group Chat
 //@route           POST /api/chat/group
-//@access          Protected
 const createGroupChat = asyncHandler(async (req, res) => {
   if (!req.body.users || !req.body.name) {
-    return res.status(400).send({ message: 'Please Fill all the feilds' })
+    return res.status(400).send({ message: 'Please Fill all the fields' })
   }
 
   var users = JSON.parse(req.body.users)
@@ -102,7 +99,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
       chatName: req.body.name,
       users: users,
       isGroupChat: true,
-      groupAdmin: req.user,
+      groupAdmin: req.body.currUser,
     })
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
@@ -116,9 +113,77 @@ const createGroupChat = asyncHandler(async (req, res) => {
   }
 })
 
+//@description     Auto Create New Group Chat
+//@route           POST /api/chat/autocreate
+const autoCreateGroupChat = asyncHandler(async (req, res) => {
+  const users = [JSON.parse(req.body.users)]
+  const groupNames = req.body.groupNames
+  const currUser = req.body.currUser
+  const currGroupChatExist = req.body.currGroupChatExist
+  // console.log('ddd')
+
+  try {
+    const newGroupChatCreatedList = []
+    console.log(groupNames.length)
+    for (var j = 0; j < groupNames.length; ++j) {
+      for (var i = 0; i < currGroupChatExist.length; ++i) {
+        if (groupNames[j] === currGroupChatExist[i].chatName) {
+          if (currUser.identity === 'Staff') {
+            // console.log('fff')
+            await Chat.findByIdAndUpdate(
+              currGroupChatExist[i]._id,
+              { $push: { users: currUser._id }, groupAdmin: currUser },
+              { new: true }
+            )
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+          } else {
+            // console.log('fff')
+            await Chat.findByIdAndUpdate(
+              currGroupChatExist[i]._id,
+              { $push: { users: currUser._id } },
+              { new: true }
+            )
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+          }
+        } else {
+          // console.log('fff')
+          if (currUser.identity === 'Staff') {
+            const groupChat = await Chat.create({
+              chatName: groupNames[j],
+              users: users,
+              isGroupChat: true,
+              groupAdmin: currUser,
+            })
+            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+            newGroupChatCreatedList.push(fullGroupChat)
+          } else {
+            // console.log('fff')
+            const groupChat = await Chat.create({
+              chatName: groupNames[j],
+              users: users,
+              isGroupChat: true,
+            })
+            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+            newGroupChatCreatedList.push(fullGroupChat)
+          }
+        }
+      }
+    }
+    res.status(200).json(newGroupChatCreatedList)
+  } catch (error) {
+    res.status(400)
+    throw new Error(error.message)
+  }
+})
+
 // @desc    Rename Group
 // @route   PUT /api/chat/rename
-// @access  Protected
 const renameGroup = asyncHandler(async (req, res) => {
   const { chatId, chatName } = req.body
 
@@ -144,7 +209,6 @@ const renameGroup = asyncHandler(async (req, res) => {
 
 // @desc    Remove user from Group
 // @route   PUT /api/chat/groupremove
-// @access  Protected
 const removeFromGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body
 
@@ -172,7 +236,6 @@ const removeFromGroup = asyncHandler(async (req, res) => {
 
 // @desc    Add user to Group / Leave
 // @route   PUT /api/chat/groupadd
-// @access  Protected
 const addToGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body
 
@@ -205,4 +268,5 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  autoCreateGroupChat,
 }

@@ -6,8 +6,8 @@ const {
   removeFromGroup,
   addToGroup,
   renameGroup,
+  autoCreateGroupChat,
 } = require('../controllers/chatController')
-const { protect } = require('../middleware/authMiddleware')
 
 const router = express.Router()
 
@@ -17,5 +17,6 @@ router.route('/group').post(createGroupChat)
 router.route('/rename').put(renameGroup)
 router.route('/groupremove').put(removeFromGroup)
 router.route('/groupadd').put(addToGroup)
+router.route('/autocreate').post(autoCreateGroupChat)
 
 module.exports = router
