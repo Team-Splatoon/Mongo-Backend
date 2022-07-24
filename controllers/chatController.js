@@ -120,13 +120,16 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
   const groupNames = req.body.groupNames
   const currUser = req.body.currUser
   const currGroupChatExist = req.body.currGroupChatExist
+  // console.log('ddd')
 
   try {
     const newGroupChatCreatedList = []
+    console.log(groupNames.length)
     for (var j = 0; j < groupNames.length; ++j) {
       for (var i = 0; i < currGroupChatExist.length; ++i) {
         if (groupNames[j] === currGroupChatExist[i].chatName) {
           if (currUser.identity === 'Staff') {
+            // console.log('fff')
             await Chat.findByIdAndUpdate(
               currGroupChatExist[i]._id,
               { $push: { users: currUser._id }, groupAdmin: currUser },
@@ -135,6 +138,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('users', '-password')
               .populate('groupAdmin', '-password')
           } else {
+            // console.log('fff')
             await Chat.findByIdAndUpdate(
               currGroupChatExist[i]._id,
               { $push: { users: currUser._id } },
@@ -144,6 +148,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('groupAdmin', '-password')
           }
         } else {
+          // console.log('fff')
           if (currUser.identity === 'Staff') {
             const groupChat = await Chat.create({
               chatName: groupNames[j],
@@ -156,6 +161,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('groupAdmin', '-password')
             newGroupChatCreatedList.push(fullGroupChat)
           } else {
+            // console.log('fff')
             const groupChat = await Chat.create({
               chatName: groupNames[j],
               users: users,
@@ -169,7 +175,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
         }
       }
     }
-
     res.status(200).json(newGroupChatCreatedList)
   } catch (error) {
     res.status(400)
