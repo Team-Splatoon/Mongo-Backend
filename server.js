@@ -29,10 +29,11 @@ const io = socket(server, {
   cors: {
     origin: 'http://localhost:3000',
     credentials: true,
+    methods: ["GET", "POST"],
   },
 })
 
-global.onlineUsers = new Map()
+//global.onlineUsers = new Map()
 
 // io.on('connection', (socket) => {
 //   global.chatSocket = socket
@@ -49,31 +50,42 @@ global.onlineUsers = new Map()
 // })
 
 io.on("connection", (socket) => {
+  global.chatSocket = socket
+  // console.log(socket)
   //console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
+    //console.log("userData: " + userData)
     socket.join(userData._id);
-    socket.emit("connected");
+    //socket.emit("connected");
   });
 
-  socket.on("join chat", (room) => {
+  socket.on("join_chat", (room) => {
     socket.join(room);
-    console.log("User Joined Room: " + room);
+    //console.log("User Joined Room: " + room);
   });
 
-  socket.on("send-msg", (newMessageRecieved) => {
+  socket.on("send_msg", (newMessageRecieved) => {
+    console.log(newMessageRecieved)
+    //console.log("msg")
     var chat = newMessageRecieved.chat;
-    console.log(chat)
+    //console.log(chat)
 
     if (!chat.users) return console.log("chat.users not defined");
 
     chat.users.forEach((user) => {
-      console.log(user)
-      if (user._id == newMessageRecieved.from._id) return;
+      //console.log(user)
+      console.log('from' + newMessageRecieved.from)
+      if (user._id == newMessageRecieved.from) return;
 
-      socket.in(user._id).emit("msg-recieve", newMessageRecieved);
+      socket.in(user._id).emit("msg_recieve", JSON.stringify(newMessageRecieved));
     });
   });
-  socket.removeAllListeners();
+
+  socket.on("disconnect", () => {
+    console.log("disconnect")
+  });
+
+  // socket.removeAllListeners();
 
   socket.off("setup", () => {
     console.log("USER DISCONNECTED");

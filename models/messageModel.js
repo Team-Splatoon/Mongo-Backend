@@ -20,6 +20,9 @@ const messageSchema = new mongoose.Schema(
     },
     time:{
       type: String,
+    },
+    name:{
+      type: String,
     }
   },
   {
