@@ -123,9 +123,9 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
 
   try {
     const newGroupChatCreatedList = []
-    groupNames.map(async (name) => {
+    for (var j = 0; j < groupNames.length; ++j) {
       for (var i = 0; i < currGroupChatExist.length; ++i) {
-        if (name === currGroupChatExist[i].chatName) {
+        if (groupNames[j] === currGroupChatExist[i].chatName) {
           if (currUser.identity === 'Staff') {
             await Chat.findByIdAndUpdate(
               currGroupChatExist[i]._id,
@@ -146,7 +146,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
         } else {
           if (currUser.identity === 'Staff') {
             const groupChat = await Chat.create({
-              chatName: name,
+              chatName: groupNames[j],
               users: users,
               isGroupChat: true,
               groupAdmin: currUser,
@@ -157,7 +157,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
             newGroupChatCreatedList.push(fullGroupChat)
           } else {
             const groupChat = await Chat.create({
-              chatName: name,
+              chatName: groupNames[j],
               users: users,
               isGroupChat: true,
             })
@@ -168,7 +168,7 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
           }
         }
       }
-    })
+    }
 
     res.status(200).json(newGroupChatCreatedList)
   } catch (error) {
