@@ -35,7 +35,7 @@ module.exports.getAllMessage = async (req, res, next) => {
         name: msg.name,
       }
     })
-    console.log(projectMessages)
+    //console.log(projectMessages)
     res.json(projectMessages)
   } catch (ex) {
     next(ex)

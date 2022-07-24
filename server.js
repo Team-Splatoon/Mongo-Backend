@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
 
     chat.users.forEach((user) => {
       //console.log(user)
-      console.log('from' + newMessageRecieved.from)
+      //console.log('from' + newMessageRecieved.from)
       if (user._id == newMessageRecieved.from) return;
 
       socket.in(user._id).emit("msg_recieve", JSON.stringify(newMessageRecieved));
