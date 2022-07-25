@@ -6,7 +6,7 @@ const User = require('../models/userModel')
 //@route           POST /api/chat/
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body
-  console.log(userId)
+  //console.log(userId)
   const data = JSON.parse(req.query.user)
 
   if (!userId) {
@@ -64,7 +64,7 @@ const fetchChats = asyncHandler(async (req, res) => {
       .populate('latestMessage')
       .sort({ updatedAt: -1 })
       .then(async (results) => {
-        console.log(results)
+        //console.log(results)
         results = await User.populate(results, {
           path: 'latestMessage.sender',
           select: 'username avatarImage email',

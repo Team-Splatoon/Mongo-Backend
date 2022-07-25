@@ -2,12 +2,15 @@ const Messages = require('../models/messageModel')
 
 module.exports.addMessage = async (req, res, next) => {
   try {
-    const { from, to, message } = req.body
+    const { from, to, message, time, name} = req.body
     const data = await Messages.create({
       message: { text: message },
       users: [from, to],
       sender: from,
+      time: time,
+      name: name,
     })
+    //console.log(data)
     if (data) return res.json({ msg: 'Message added successfully.' })
     return res.json({ msg: 'Failed to add message to the database.' })
   } catch (ex) {
@@ -18,7 +21,7 @@ module.exports.addMessage = async (req, res, next) => {
 module.exports.getAllMessage = async (req, res, next) => {
   try {
     const { from, to } = req.body
-    console.log({ from, to })
+    //console.log({ from, to })
     const messages = await Messages.find({
       users: {
         $all: [to],
@@ -28,8 +31,11 @@ module.exports.getAllMessage = async (req, res, next) => {
       return {
         fromSelf: msg.sender.toString() === from,
         message: msg.message.text,
+        time: msg.time,
+        name: msg.name,
       }
     })
+    //console.log(projectMessages)
     res.json(projectMessages)
   } catch (ex) {
     next(ex)
