@@ -2,11 +2,8 @@ const asyncHandler = require('express-async-handler')
 const Chat = require('../models/chatModel')
 const User = require('../models/userModel')
 
-//@description     Create or fetch One to One Chat
-//@route           POST /api/chat/
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body
-  //console.log(userId)
   const data = JSON.parse(req.query.user)
 
   if (!userId) {
@@ -52,19 +49,15 @@ const accessChat = asyncHandler(async (req, res) => {
   }
 })
 
-//@description     Fetch all chats for a user
-//@route           GET /api/chat/
 const fetchChats = asyncHandler(async (req, res) => {
   try {
     const data = JSON.parse(req.query.user)
     Chat.find({ users: { $elemMatch: { $eq: data._id } } })
       .populate('users', '-password')
-      //.populate('users')
       .populate('groupAdmin', '-password')
       .populate('latestMessage')
       .sort({ updatedAt: -1 })
       .then(async (results) => {
-        //console.log(results)
         results = await User.populate(results, {
           path: 'latestMessage.sender',
           select: 'username avatarImage email',
@@ -77,8 +70,6 @@ const fetchChats = asyncHandler(async (req, res) => {
   }
 })
 
-//@description     Create New Group Chat
-//@route           POST /api/chat/group
 const createGroupChat = asyncHandler(async (req, res) => {
   if (!req.body.users || !req.body.name) {
     return res.status(400).send({ message: 'Please Fill all the fields' })
@@ -113,23 +104,18 @@ const createGroupChat = asyncHandler(async (req, res) => {
   }
 })
 
-//@description     Auto Create New Group Chat
-//@route           POST /api/chat/autocreate
 const autoCreateGroupChat = asyncHandler(async (req, res) => {
   const users = [JSON.parse(req.body.users)]
   const groupNames = req.body.groupNames
   const currUser = req.body.currUser
   const currGroupChatExist = req.body.currGroupChatExist
-  // console.log('ddd')
 
   try {
     const newGroupChatCreatedList = []
-    console.log(groupNames.length)
     for (var j = 0; j < groupNames.length; ++j) {
       for (var i = 0; i < currGroupChatExist.length; ++i) {
         if (groupNames[j] === currGroupChatExist[i].chatName) {
           if (currUser.identity === 'Staff') {
-            // console.log('fff')
             await Chat.findByIdAndUpdate(
               currGroupChatExist[i]._id,
               { $push: { users: currUser._id }, groupAdmin: currUser },
@@ -138,7 +124,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('users', '-password')
               .populate('groupAdmin', '-password')
           } else {
-            // console.log('fff')
             await Chat.findByIdAndUpdate(
               currGroupChatExist[i]._id,
               { $push: { users: currUser._id } },
@@ -148,7 +133,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('groupAdmin', '-password')
           }
         } else {
-          // console.log('fff')
           if (currUser.identity === 'Staff') {
             const groupChat = await Chat.create({
               chatName: groupNames[j],
@@ -161,7 +145,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
               .populate('groupAdmin', '-password')
             newGroupChatCreatedList.push(fullGroupChat)
           } else {
-            // console.log('fff')
             const groupChat = await Chat.create({
               chatName: groupNames[j],
               users: users,
@@ -182,8 +165,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    Rename Group
-// @route   PUT /api/chat/rename
 const renameGroup = asyncHandler(async (req, res) => {
   const { chatId, chatName } = req.body
 
@@ -207,12 +188,8 @@ const renameGroup = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    Remove user from Group
-// @route   PUT /api/chat/groupremove
 const removeFromGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body
-
-  // check if the requester is admin
 
   const removed = await Chat.findByIdAndUpdate(
     chatId,
@@ -234,8 +211,6 @@ const removeFromGroup = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    Add user to Group / Leave
-// @route   PUT /api/chat/groupadd
 const addToGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body
 

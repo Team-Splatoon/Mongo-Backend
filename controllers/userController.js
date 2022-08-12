@@ -54,7 +54,6 @@ module.exports.login = async (req, res, next) => {
       return res.json({ msg: 'Incorrect username or password.', status: false })
     }
     delete curruser.password
-    //console.log(curruser)
     return res.json({ status: true, curruser })
   } catch (err) {
     next(err)
@@ -92,7 +91,6 @@ module.exports.allUsers = async (req, res, next) => {
           ],
         }
       : {}
-    //console.log(User.find(keyword))
     const data = JSON.parse(req.query.user)
     const users = await User.find(keyword).find({
       _id: { $ne: data._id },
