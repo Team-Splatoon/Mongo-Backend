@@ -72,15 +72,11 @@ const fetchChats = asyncHandler(async (req, res) => {
 
 const fetchGroupChats = asyncHandler(async (req, res) => {
   try {
-    const data = JSON.parse(req.query.user)
-    Chat.find({ isGroupChat: true })
-      .populate('users', '-password')
-      .then(async (results) => {
-        results = await Chat.populate(results, {
-          select: 'chatName',
-        })
-        res.status(200).send(results)
-      })
+    const results = await Chat.find({ isGroupChat: true }).populate(
+      'users',
+      '-password'
+    )
+    res.status(200).send(results)
   } catch (error) {
     res.status(400)
     throw new Error(error.message)
@@ -131,7 +127,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
     const newGroupChatCreatedList = []
     for (var j = 0; j < groupNames.length; j++) {
       if (currGroupChatExist.length === 0) {
-        console.log('first group chat')
         if (currUser.identity === 'Staff') {
           const groupChat = await Chat.create({
             chatName: groupNames[j],
@@ -143,7 +138,6 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
             .populate('users', '-password')
             .populate('groupAdmin', '-password')
           newGroupChatCreatedList.push(fullGroupChat)
-          console.log(newGroupChatCreatedList)
         } else {
           const groupChat = await Chat.create({
             chatName: groupNames[j],
@@ -154,13 +148,11 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
             .populate('users', '-password')
             .populate('groupAdmin', '-password')
           newGroupChatCreatedList.push(fullGroupChat)
-          console.log(newGroupChatCreatedList)
         }
       } else {
+        var created = false
         for (var i = 0; i < currGroupChatExist.length; i++) {
-          console.log('loop2')
           if (groupNames[j] === currGroupChatExist[i].chatName) {
-            console.log('condition1')
             if (currUser.identity === 'Staff') {
               await Chat.findByIdAndUpdate(
                 currGroupChatExist[i]._id,
@@ -178,30 +170,31 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
                 .populate('users', '-password')
                 .populate('groupAdmin', '-password')
             }
+            created = true
+          }
+        }
+        if (created === false) {
+          if (currUser.identity === 'Staff') {
+            const groupChat = await Chat.create({
+              chatName: groupNames[j],
+              users: users,
+              isGroupChat: true,
+              groupAdmin: currUser,
+            })
+            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+            newGroupChatCreatedList.push(fullGroupChat)
           } else {
-            console.log('condition2')
-            if (currUser.identity === 'Staff') {
-              const groupChat = await Chat.create({
-                chatName: groupNames[j],
-                users: users,
-                isGroupChat: true,
-                groupAdmin: currUser,
-              })
-              const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-                .populate('users', '-password')
-                .populate('groupAdmin', '-password')
-              newGroupChatCreatedList.push(fullGroupChat)
-            } else {
-              const groupChat = await Chat.create({
-                chatName: groupNames[j],
-                users: users,
-                isGroupChat: true,
-              })
-              const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-                .populate('users', '-password')
-                .populate('groupAdmin', '-password')
-              newGroupChatCreatedList.push(fullGroupChat)
-            }
+            const groupChat = await Chat.create({
+              chatName: groupNames[j],
+              users: users,
+              isGroupChat: true,
+            })
+            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+              .populate('users', '-password')
+              .populate('groupAdmin', '-password')
+            newGroupChatCreatedList.push(fullGroupChat)
           }
         }
       }
