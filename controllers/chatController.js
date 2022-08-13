@@ -70,6 +70,23 @@ const fetchChats = asyncHandler(async (req, res) => {
   }
 })
 
+const fetchGroupChats = asyncHandler(async (req, res) => {
+  try {
+    const data = JSON.parse(req.query.user)
+    Chat.find({ isGroupChat: true })
+      .populate('users', '-password')
+      .then(async (results) => {
+        results = await Chat.populate(results, {
+          select: 'chatName',
+        })
+        res.status(200).send(results)
+      })
+  } catch (error) {
+    res.status(400)
+    throw new Error(error.message)
+  }
+})
+
 const createGroupChat = asyncHandler(async (req, res) => {
   if (!req.body.users || !req.body.name) {
     return res.status(400).send({ message: 'Please Fill all the fields' })
@@ -112,48 +129,79 @@ const autoCreateGroupChat = asyncHandler(async (req, res) => {
 
   try {
     const newGroupChatCreatedList = []
-    for (var j = 0; j < groupNames.length; ++j) {
-      for (var i = 0; i < currGroupChatExist.length; ++i) {
-        if (groupNames[j] === currGroupChatExist[i].chatName) {
-          if (currUser.identity === 'Staff') {
-            await Chat.findByIdAndUpdate(
-              currGroupChatExist[i]._id,
-              { $push: { users: currUser._id }, groupAdmin: currUser },
-              { new: true }
-            )
-              .populate('users', '-password')
-              .populate('groupAdmin', '-password')
-          } else {
-            await Chat.findByIdAndUpdate(
-              currGroupChatExist[i]._id,
-              { $push: { users: currUser._id } },
-              { new: true }
-            )
-              .populate('users', '-password')
-              .populate('groupAdmin', '-password')
-          }
+    for (var j = 0; j < groupNames.length; j++) {
+      if (currGroupChatExist.length === 0) {
+        console.log('first group chat')
+        if (currUser.identity === 'Staff') {
+          const groupChat = await Chat.create({
+            chatName: groupNames[j],
+            users: users,
+            isGroupChat: true,
+            groupAdmin: currUser,
+          })
+          const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+            .populate('users', '-password')
+            .populate('groupAdmin', '-password')
+          newGroupChatCreatedList.push(fullGroupChat)
+          console.log(newGroupChatCreatedList)
         } else {
-          if (currUser.identity === 'Staff') {
-            const groupChat = await Chat.create({
-              chatName: groupNames[j],
-              users: users,
-              isGroupChat: true,
-              groupAdmin: currUser,
-            })
-            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-              .populate('users', '-password')
-              .populate('groupAdmin', '-password')
-            newGroupChatCreatedList.push(fullGroupChat)
+          const groupChat = await Chat.create({
+            chatName: groupNames[j],
+            users: users,
+            isGroupChat: true,
+          })
+          const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+            .populate('users', '-password')
+            .populate('groupAdmin', '-password')
+          newGroupChatCreatedList.push(fullGroupChat)
+          console.log(newGroupChatCreatedList)
+        }
+      } else {
+        for (var i = 0; i < currGroupChatExist.length; i++) {
+          console.log('loop2')
+          if (groupNames[j] === currGroupChatExist[i].chatName) {
+            console.log('condition1')
+            if (currUser.identity === 'Staff') {
+              await Chat.findByIdAndUpdate(
+                currGroupChatExist[i]._id,
+                { $push: { users: currUser._id }, groupAdmin: currUser },
+                { new: true }
+              )
+                .populate('users', '-password')
+                .populate('groupAdmin', '-password')
+            } else {
+              await Chat.findByIdAndUpdate(
+                currGroupChatExist[i]._id,
+                { $push: { users: currUser._id } },
+                { new: true }
+              )
+                .populate('users', '-password')
+                .populate('groupAdmin', '-password')
+            }
           } else {
-            const groupChat = await Chat.create({
-              chatName: groupNames[j],
-              users: users,
-              isGroupChat: true,
-            })
-            const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-              .populate('users', '-password')
-              .populate('groupAdmin', '-password')
-            newGroupChatCreatedList.push(fullGroupChat)
+            console.log('condition2')
+            if (currUser.identity === 'Staff') {
+              const groupChat = await Chat.create({
+                chatName: groupNames[j],
+                users: users,
+                isGroupChat: true,
+                groupAdmin: currUser,
+              })
+              const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+                .populate('users', '-password')
+                .populate('groupAdmin', '-password')
+              newGroupChatCreatedList.push(fullGroupChat)
+            } else {
+              const groupChat = await Chat.create({
+                chatName: groupNames[j],
+                users: users,
+                isGroupChat: true,
+              })
+              const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+                .populate('users', '-password')
+                .populate('groupAdmin', '-password')
+              newGroupChatCreatedList.push(fullGroupChat)
+            }
           }
         }
       }
@@ -244,4 +292,5 @@ module.exports = {
   addToGroup,
   removeFromGroup,
   autoCreateGroupChat,
+  fetchGroupChats,
 }
