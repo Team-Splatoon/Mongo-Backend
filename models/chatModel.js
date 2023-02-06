@@ -16,4 +16,5 @@ const chatModel = mongoose.Schema(
 
 const Chat = mongoose.model('Chat', chatModel)
 
+// export the mongodb model which will later be used in chat controller
 module.exports = Chat

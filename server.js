@@ -5,7 +5,7 @@ const dotenv = require('dotenv')
 const cors = require('cors')
 const socket = require('socket.io')
 const messagesRoute = require('./routes/messagesRoute')
-const routesUrls = require('./routes/userRoute')
+const userRoute = require('./routes/userRoute')
 const chatRoute = require('./routes/chatRoute')
 
 dotenv.config()
@@ -18,11 +18,14 @@ mongoose
   .then(() => console.log('Database connected'))
   .catch((err) => console.log(err.message))
 
-app.use(express.json())
+// our server.js file needs to be aware of all the route.js files because server.js is where the listening happens. This is literally our server. So when a user sends a request to our application it gets to this file first, then the server.js sends that request to corresponding route.js files that has the router.post() which processes that post request and sends back a response.
+app.use(express.json()) // this line of code we have activated body passer in our application
 app.use(cors())
-app.use('/api/auth', routesUrls)
+// All the routes imported from corresponding route.js file will be appended to the base path (e.g., '/api/auth')
+app.use('/api/auth', userRoute)
 app.use('/api/message', messagesRoute)
 app.use('/api/chat', chatRoute)
+// This app.listen() listens for all the requests coming from the frontend. So when it listens for a request and it sees a request, it's going to send that request to route.js
 const server = app.listen(4000, () => console.log('server is up and running'))
 
 const io = socket(server, {

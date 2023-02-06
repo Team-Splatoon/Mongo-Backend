@@ -12,6 +12,11 @@ const {
 
 const router = express.Router()
 
+// post : To send data to a server to create/update a resource.
+// put : To send data to a server to create/update a resource.
+// The difference between POST and PUT requests is that the latter are idempotent. This means that PUT requests have no additional effect if they are called multiple times.
+
+// post controllers which are different callback functions to their corresponding routes, which will be used for the interaction between frontend and backend
 router.route('/').post(accessChat)
 router.route('/').get(fetchChats)
 router.route('/group').post(createGroupChat)
