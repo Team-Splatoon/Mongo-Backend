@@ -18,7 +18,7 @@ mongoose
   .then(() => console.log('Database connected'))
   .catch((err) => console.log(err.message))
 
-// our server.js file needs to be aware of all the route.js files because server.js is where the listening happens. This is literally our server. So when a user sends a request to our application it gets to this file first, then the server.js sends that request to corresponding route.js files that has the router.post() which processes that post request and sends back a response.
+// our server.js file needs to be aware of all the route.js files because server.js is where the listening happens. This is literally our server. So when a user sends a request to our application it gets to this file first, then the server.js sends that request to corresponding route.js files that have the router.post() which processes that post request and sends back a response.
 app.use(express.json()) // this line of code we have activated body passer in our application
 app.use(cors())
 // All the routes imported from corresponding route.js file will be appended to the base path (e.g., '/api/auth')
